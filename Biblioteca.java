@@ -17,9 +17,9 @@ import java.util.GregorianCalendar;
 
 public class Biblioteca
 {
-    String nombre;
-    ArrayList<Socio> socios;
-    ArrayList<Libro> libros;
+    private String nombre;
+    private ArrayList<Socio> socios;
+    private ArrayList<Libro> libros;
     
      /**
      * Constructor que inicializa la biblioteca con socios y libros existentes.
@@ -125,8 +125,8 @@ public class Biblioteca
      * @param p_editorial Editorial del libro.
      * @param p_anio Año de publicación.
      */
-    public void nuevoLibro(String p_titulo, int p_edicion, String p_editorial, int p_anio){
-        Libro libro = new Libro(p_titulo, p_edicion, p_editorial, p_anio);
+    public void nuevoLibro(int p_id, String p_titulo, int p_edicion, String p_editorial, int p_anio){
+        Libro libro = new Libro(p_id, p_titulo, p_edicion, p_editorial, p_anio);
         
         if(this.agregarLibro(libro)){
             System.out.println("Libro " + libro.getTitulo() + " agregado con exito");
@@ -207,7 +207,7 @@ public class Biblioteca
      * @throws LibroNoPrestadoException Si el libro no se encuentra prestado.
      */
     public void devolverLibro(Libro p_libro)throws LibroNoPrestadoException{
-        if (p_libro.prestado()){
+        if (!p_libro.prestado()){
             throw new LibroNoPrestadoException();
         }
         
@@ -387,5 +387,21 @@ public class Biblioteca
         }
         
         return false;
+    }
+    
+    public void sincronizarConBD(){
+        ArrayList <Socio> sociosBD = Conexion.recuperarSocios();
+        ArrayList <Libro> librosBD = Conexion.recuperarLibros();
+        try
+        {
+            ArrayList <Prestamo> prestamosBD = Conexion.recuperarPrestamos(sociosBD, librosBD);
+        }
+        catch (java.text.ParseException pe)
+        {
+            System.out.println("Error al hacer conversion, no se recupero prestamos: " + pe.getMessage());
+        }
+        
+        this.setSocios(sociosBD);
+        this.setLibros(librosBD);
     }
 }

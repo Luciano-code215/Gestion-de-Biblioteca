@@ -20,15 +20,13 @@ import java.util.Scanner;
 public class Main
 {
     public static void main (String[] args) {
+        Conexion.crearTablas();
+        
         int op = -1;
         Scanner sc = new Scanner (System.in);
-        Biblioteca biblioteca;
-        String nombre;
+        Biblioteca biblioteca = new Biblioteca("biblioteca1");
         
-        System.out.println("Ingresar nombre de la biblioteca:");
-        nombre = sc.nextLine();
-        
-        biblioteca = new Biblioteca(nombre);
+        biblioteca.sincronizarConBD();
         
         do{
             try{
@@ -105,6 +103,8 @@ public class Main
                     }
                         
                     p_biblioteca.quitarSocio(p_biblioteca.buscarSocio(dni));
+                    Conexion.eliminarSocioBD(dni);
+                    
                     break;
                 case 3:
                     boolean continuar = true;
@@ -146,19 +146,26 @@ public class Main
                 case 5:
                     System.out.println("Ingresar Dni del Docente");
                     dni = Integer.parseInt(sc.nextLine());
-                    if(p_biblioteca.buscarSocio(dni) == null){
+                    
+                    Socio socio = p_biblioteca.buscarSocio(dni);
+                    
+                    if(socio == null){
                         throw new SocioNoExistenteException();
                     }
                         
-                    if(!p_biblioteca.buscarSocio(dni).soyDeLaClase().equalsIgnoreCase("docente")){
+                    if(!socio.soyDeLaClase().equalsIgnoreCase("docente")){
                         System.out.println("\t**El dni ingresado no pertenece a un docente**");
                         break;
                     }
                         
                     System.out.println("Ingreasr dias a agregar:");
                     int dias = Integer.parseInt(sc.nextLine());
-                    ((Docente)p_biblioteca.buscarSocio(dni)).cambiarDiasDePrestamo(dias);
-                        
+                    
+                    ((Docente)socio).cambiarDiasDePrestamo(dias);
+                    
+                    //actualizacion en BD
+                    Conexion.actualizarDiasPrestamoBD(dni, socio.getDiasPrestamo());
+                    
                     break;
                         
                 case 6:
@@ -196,6 +203,7 @@ public class Main
                     String carrera = sc.nextLine();
                                 
                     p_biblioteca.nuevoSocioEstudiante(dni, nombre, carrera);
+                    Conexion.guardarEstudiante((Estudiante)p_biblioteca.buscarSocio(dni));
                                 
                     break;
                             
@@ -210,6 +218,7 @@ public class Main
                     String area = sc.nextLine();
                                 
                     p_biblioteca.nuevoSocioDocente(dni, nombre, area);
+                    Conexion.guardarDocente((Docente)p_biblioteca.buscarSocio(dni));
                                 
                     break;
                                 
@@ -249,9 +258,14 @@ public class Main
                         throw new LibroNoExistenteException();
                     }
                     
-                    if(!p_biblioteca.quitarLibro(p_biblioteca.getLibros().get(op -1))){
+                    Libro libroQuitar = p_biblioteca.getLibros().get(op -1);
+                    
+                    if(!p_biblioteca.quitarLibro(libroQuitar)){
                         System.out.println("**No se pudo quitar libro**");
+                        break;
                     }
+                    //eliminacion de la BD
+                    Conexion.eliminarLibroBD(libroQuitar.getId());
                     
                     break;
                     
@@ -308,8 +322,12 @@ public class Main
         String editorial = sc.nextLine();
         System.out.println("Ingresar Anio");
         int anio = Integer.parseInt(sc.nextLine());
-            
-        p_biblioteca.nuevoLibro(titulo, edicion, editorial, anio);
+        
+        //guardado en BD, la conexion me da el id que la BD le asigno y asi se crea con id el nuevo libro
+        int id = Conexion.guardarLibro(new Libro(titulo, edicion, editorial, anio));
+        
+        p_biblioteca.nuevoLibro(id, titulo, edicion, editorial, anio);
+        
     }
     
     public static void menuPrestamos(Biblioteca p_biblioteca) throws LibroPrestadoException, LibroNoExistenteException, LibroNoPrestadoException, SocioNoExistenteException {
@@ -347,10 +365,15 @@ public class Main
                     }
                     
                     Socio socio = p_biblioteca.getSocios().get(op-1);
+                    Calendar fechaHoy = new GregorianCalendar();
                     
-                    if(!p_biblioteca.prestarLibro(new GregorianCalendar(), socio, libro)){
+                    if(!p_biblioteca.prestarLibro(fechaHoy, socio, libro)){
                         System.out.println("**No se puedo prestar el libro, excedio el limite de prestamos**");
+                        break;
                     }
+                    
+                    //guardando prestamo en BD
+                    int idPresta = Conexion.guardarPrestamo(new Prestamo (fechaHoy, socio, libro));
                     
                     break;
                     
@@ -363,8 +386,11 @@ public class Main
                         throw new LibroNoExistenteException();
                     }
                     
-                    p_biblioteca.devolverLibro(p_biblioteca.getLibros().get(op-1));
-                    
+                    Libro libro1 = p_biblioteca.getLibros().get(op-1);
+                    p_biblioteca.devolverLibro(libro1);
+                    //registrar devolucion en BD
+                    Conexion.registrarDevolucionBD(libro1.ultimoPrestamo().getSocio().getDni(), libro1.getId());                    
+                    System.out.println("**Libro devuelto**");
                     break;
                     
                 case 3:
@@ -388,7 +414,7 @@ public class Main
                     }
                     
                     for(Prestamo unPrestamo : p_biblioteca.prestamosVencidos()){
-                        unPrestamo.toString();
+                        System.out.println(unPrestamo.toString() + "\n");
                     }
                     
                     break;

@@ -14,6 +14,7 @@ import java.util.Calendar;
 
 public class Prestamo
 {
+    private int id;
     private Calendar fechaRetiro;
     private Calendar fechaDevolucion;
     private Socio socio;
@@ -34,6 +35,26 @@ public class Prestamo
         this.setLibro(p_libro);
     }
     
+     /**
+     * Constructor que crea un préstamo activo.
+     * La fecha de devolución se inicializa como {@code null}.
+     *
+     * @param p_retiro Fecha en la que se retira el libro.
+     * @param p_socio Socio que realiza el préstamo.
+     * @param p_libro Libro que se presta.
+     */
+    public Prestamo (int p_id, Calendar p_retiro, Socio p_socio, Libro p_libro){
+        this.setId(p_id);
+        this.setFechaRetiro(p_retiro);
+        this.setFechaDevolucion(null);
+        this.setSocio(p_socio);
+        this.setLibro(p_libro);
+    }
+    
+    private void setId(int p_id){
+        this.id = p_id;
+    }
+    
     private void setFechaRetiro(Calendar p_fecha){
         this.fechaRetiro = p_fecha;
     }
@@ -48,6 +69,10 @@ public class Prestamo
     
     private void setLibro(Libro p_libro){
         this.libro = p_libro;
+    }
+    
+    public int getId(){
+        return this.id;
     }
     
     public Calendar getFechaRetiro(){

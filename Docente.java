@@ -89,6 +89,10 @@ public class Docente extends Socio
     public void cambiarDiasDePrestamo(int p_dias){
         if(this.esResponsable()){
             this.setDiasPrestamo(this.getDiasPrestamo() + p_dias);
+            System.out.println("Dias cambiados con exito");
+        }
+        else{
+            System.out.println("El docente no es reponsoble, no se puede agregar dias");
         }
     }
     

@@ -12,6 +12,7 @@ import java.util.*;
 
 public class Libro
 {
+    private int id;
     private String titulo;
     private int edicion;
     private String editorial;
@@ -52,6 +53,27 @@ public class Libro
         this.setPrestamos(new ArrayList<>());
     }
     
+      /**
+     * Constructor que inicializa un libro sin préstamos.
+     *
+     * @param p_titulo Título del libro.
+     * @param p_edicion Edición del libro.
+     * @param p_editorial Editorial del libro.
+     * @param p_anio Año de publicación.
+     */
+    public Libro(int p_id, String p_titulo, int p_edicion, String p_editorial, int p_anio){
+        this.setId(p_id);
+        this.setTitulo(p_titulo);
+        this.setEdicion(p_edicion);
+        this.setEditorial(p_editorial);
+        this.setAnio(p_anio);
+        this.setPrestamos(new ArrayList<>());
+    }
+    
+    private void setId(int p_id){
+        this.id = p_id;
+    }
+    
     private void setTitulo(String p_titulo){
         this.titulo = p_titulo;
     }
@@ -70,6 +92,10 @@ public class Libro
     
     private void setPrestamos(ArrayList<Prestamo> p_prestamos){
         this.prestamos = p_prestamos;
+    }
+    
+    public int getId(){
+        return this.id;
     }
     
     public String getTitulo(){
