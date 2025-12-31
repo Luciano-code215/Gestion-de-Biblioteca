@@ -14,6 +14,7 @@ public class Libro
     private int edicion;
     private String editorial;
     private int anio;
+    private int cantidad;
     private ArrayList<Prestamo> prestamos;
     
     public Libro(String p_titulo, int p_edicion, String p_editorial, int p_anio, ArrayList<Prestamo> p_prestamos){
@@ -96,6 +97,11 @@ public class Libro
         }
         
         return null;
+    }
+    
+    public boolean esIgual(Libro p_libro){
+        return (this.getTitulo() == p_libro.getTitulo() && this.getEdicion() == p_libro.getEdicion() && 
+          this.getEditorial() == p_libro.getEditorial() && this.getAnio() == p_libro.getAnio());
     }
     
     public String toString(){

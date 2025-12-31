@@ -52,11 +52,21 @@ public class Biblioteca
     }
     
     public boolean agregarSocio(Socio p_socio){
-        return this.getSocios().add(p_socio);
+        try{
+            return this.getSocios().add(p_socio);
+        }catch (OutOfMemoryError e){
+            System.err.println("Error fatal: No hay suficiente espacio para agregar Socios");
+            return false;
+        }
     }
     
     public boolean agregarLibro(Libro p_libro){
-        return this.getLibros().add(p_libro);
+        try{
+            return this.getLibros().add(p_libro);
+        }catch (OutOfMemoryError e){
+            System.err.println("Error fatal: No hay suficiente espacio para agregar Libros");
+            return false;
+        }        
     }
     
     public boolean quitarSocio(Socio p_socio){
@@ -69,26 +79,41 @@ public class Biblioteca
     
     public void nuevoLibro(String p_titulo, int p_edicion, String p_editorial, int p_anio){
         Libro libro = new Libro(p_titulo, p_edicion, p_editorial, p_anio);
-        this.agregarLibro(libro);
+        
+        if(this.agregarLibro(libro)){
+            System.out.println("Libro " + libro.getTitulo() + " agregado con exito");
+        }
     }
     
-    public void nuevoSocioEstudiante(int p_dniSocio, String p_nombre, String p_carrera){
+    public void nuevoSocioEstudiante(int p_dniSocio, String p_nombre, String p_carrera)throws SocioDuplicadoException{
+        if (this.socioExistente(p_dniSocio)){
+            throw new SocioDuplicadoException ();
+        }
+        
         Estudiante estudiante = new Estudiante(p_dniSocio, p_nombre, 20, p_carrera);
-        this.agregarSocio(estudiante);
+        if(this.agregarSocio(estudiante)){
+            System.out.println("Estudiante " + p_nombre + " agregado con exito");
+        }
     }
     
-    public void nuevoSocioDocente(int p_dniSocio, String p_nombre, String p_area){
+    public void nuevoSocioDocente(int p_dniSocio, String p_nombre, String p_area)throws SocioDuplicadoException{
+        if (this.socioExistente(p_dniSocio)){
+            throw new SocioDuplicadoException ();
+        }
+        
         Docente docente = new Docente(p_dniSocio, p_nombre, 5, p_area);
-        this.agregarSocio(docente);
+        if(this.agregarSocio(docente)){
+            System.out.println("Docente " + p_nombre + " agregado con exito");
+        }
     }
     
-    public boolean prestarLibro(Calendar p_fechaRetiro, Socio p_socio, Libro p_libro){
+    public boolean prestarLibro(Calendar p_fechaRetiro, Socio p_socio, Libro p_libro)throws LibroPrestadoException{
         if (p_fechaRetiro == null || p_socio == null || p_libro == null){
             return false;
         }
         
         if (p_libro.prestado()){
-            return false;
+            throw new LibroPrestadoException();
         }
         
         Prestamo prestamo = new Prestamo (p_fechaRetiro, p_socio, p_libro);
@@ -99,15 +124,13 @@ public class Biblioteca
         return true;
     }
     
-    public void devolverLibro(Libro p_libro){
-        Calendar fechaHoy = new GregorianCalendar();
-        
+    public void devolverLibro(Libro p_libro)throws LibroNoPrestadoException{
         if (p_libro.prestado()){
-            p_libro.ultimoPrestamo().registrarFechaDevolucion(fechaHoy);
+            throw new LibroNoPrestadoException();
         }
-        else{
-            System.out.println("El libro no se encuentra prestado");
-        }
+        
+        Calendar fechaHoy = new GregorianCalendar();
+        p_libro.ultimoPrestamo().registrarFechaDevolucion(fechaHoy);
     }
     
     public int cantidadSociosPorTipo(String p_objeto){
@@ -149,7 +172,7 @@ public class Biblioteca
     
     public String quienTieneElLibro(Libro p_libro) throws LibroNoPrestadoException{
         if(!p_libro.prestado()){
-            throw new LibroNoPrestadoException("El libro se encuenta en biblioteca");
+            throw new LibroNoPrestadoException();
         }
         
         return p_libro.ultimoPrestamo().getSocio().getNombre();
@@ -157,9 +180,11 @@ public class Biblioteca
     
     public String listaDeSocios(){
         String cadena = "";
+        int indice = 1;
         
         for (Socio unSocio : this.getSocios()){
-            cadena = cadena + unSocio.toString() + "\n";
+            cadena = cadena + indice + " - " + unSocio.toString() + "\n";
+            indice++;
         }
         
         return cadena + "*******************\n" + "Cantidad de socios por tipo Estudiante: " +
@@ -189,24 +214,38 @@ public class Biblioteca
     
     public String listaDeLibros(){
         String cadena = "";
+        int indice = 1;
         
         for (Libro unLibro : this.getLibros()){
-            cadena = cadena + unLibro.toString() + "|| Prestado: " + 
+            cadena = cadena + indice + " - " + unLibro.toString() + "|| Prestado: " + 
               (unLibro.prestado() ? "SI" : "NO") + "\n"; 
+            indice ++;
         }
         
         return cadena;
     }
     
     public String listaDeDocentesResponsables(){
-        String cadena = "";
+        if(this.docentesResponsables().isEmpty()){
+            return "\t****NO HAY DOCENTES RESPONSABLES****";
+                        }
         
-        for (Socio unSocio : this.getSocios()){
-            if (unSocio instanceof Docente && ((Docente)unSocio).esResponsable()){
-                cadena = cadena + unSocio.toString() + "\n";
-            }
+        String cadena = "\t****DOCENTES RESPONSABLES****\n";
+        
+        for (Socio unSocio : this.docentesResponsables()){
+            cadena = cadena + unSocio.toString() + "\n";
         }
         
         return cadena;
+    }
+    
+    public boolean socioExistente (int p_dni){
+        for(Socio unSocio : this.getSocios()){
+            if (unSocio.getDni() == p_dni){
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
