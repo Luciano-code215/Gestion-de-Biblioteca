@@ -1,9 +1,17 @@
 
 /**
- * Write a description of class Main here.
+  * La clase Main contiene el método principal del programa.
+ * Se encarga de interactuar con el usuario mediante menús,
+ * permitiendo la gestión de socios, libros y préstamos de una
+ * biblioteca.
+ *
+ * Desde esta clase se coordinan las operaciones principales
+ * como la creación de socios, incorporación de libros,
+ * realización y devolución de préstamos, y consultas generales,
+ * delegando la lógica de negocio a la clase Biblioteca.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Luciano Pedotti
+ * @version 24/12/2025
  */
 
 import java.util.*;
@@ -335,13 +343,15 @@ public class Main
                     op = Integer.parseInt(sc.nextLine());
                     
                     if(op < 1 || op > p_biblioteca.getSocios().size()){
-                        System.out.println("***Socio inexistente***");
-                        break;
+                        throw new LibroNoExistenteException();
                     }
                     
                     Socio socio = p_biblioteca.getSocios().get(op-1);
                     
-                    p_biblioteca.prestarLibro(new GregorianCalendar(), socio, libro);
+                    if(!p_biblioteca.prestarLibro(new GregorianCalendar(), socio, libro)){
+                        System.out.println("**No se puedo prestar el libro, excedio el limite de prestamos**");
+                    }
+                    
                     break;
                     
                 case 2:
@@ -350,8 +360,7 @@ public class Main
                     op = Integer.parseInt(sc.nextLine());
                     
                     if(op < 1 || op > p_biblioteca.getLibros().size()){
-                        System.out.println("***Libro inexistente***");
-                        break;
+                        throw new LibroNoExistenteException();
                     }
                     
                     p_biblioteca.devolverLibro(p_biblioteca.getLibros().get(op-1));
@@ -364,8 +373,7 @@ public class Main
                     op = Integer.parseInt(sc.nextLine());
                     
                     if(op < 1 || op > p_biblioteca.getLibros().size()){
-                        System.out.println("***Libro inexistente***");
-                        break;
+                        throw new LibroNoExistenteException();
                     }
                     
                     System.out.println("El libro " + p_biblioteca.getLibros().get(op -1).getTitulo() + " lo tiene " + 
@@ -379,7 +387,10 @@ public class Main
                         break;
                     }
                     
-                    System.out.println(p_biblioteca.prestamosVencidos());
+                    for(Prestamo unPrestamo : p_biblioteca.prestamosVencidos()){
+                        unPrestamo.toString();
+                    }
+                    
                     break;
                 
                 case 0:

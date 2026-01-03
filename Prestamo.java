@@ -1,9 +1,11 @@
 
 /**
- * Write a description of class Prestamo here.
+ * Representa un préstamo de un libro a un socio.
+ * Un préstamo registra la fecha de retiro, la posible fecha de devolución,
+ * el socio que realiza el préstamo y el libro prestado.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Luciano Pedotti
+ * @version 21/12/2025
  */
 
 import java.util.*;
@@ -17,6 +19,14 @@ public class Prestamo
     private Socio socio;
     private Libro libro;
     
+     /**
+     * Constructor que crea un préstamo activo.
+     * La fecha de devolución se inicializa como {@code null}.
+     *
+     * @param p_retiro Fecha en la que se retira el libro.
+     * @param p_socio Socio que realiza el préstamo.
+     * @param p_libro Libro que se presta.
+     */
     public Prestamo (Calendar p_retiro, Socio p_socio, Libro p_libro){
         this.setFechaRetiro(p_retiro);
         this.setFechaDevolucion(null);
@@ -56,18 +66,37 @@ public class Prestamo
         return this.libro;
     }
     
+    /**
+     * Registra la fecha de devolución del libro.
+     *
+     * @param p_fecha Fecha en la que se devuelve el libro.
+     */
     public void registrarFechaDevolucion(Calendar p_fecha){
         this.setFechaDevolucion(p_fecha);
     }
     
+     /**
+     * Indica si el préstamo se encuentra vencido en relación a una fecha dada.
+     * La fecha límite se calcula sumando los días permitidos por el socio
+     * a la fecha de retiro.
+     *
+     * @param p_fecha Fecha contra la cual se evalúa el vencimiento.
+     * @return {@code true} si el préstamo está vencido, {@code false} en caso contrario.
+     */
     public boolean vencido(Calendar p_fecha){
         int dias = this.getSocio().getDiasPrestamo();
         Calendar fechaLimite = (Calendar) this.getFechaRetiro().clone();
         fechaLimite.add(Calendar.DATE , dias);
         
-        return p_fecha.before(fechaLimite) || p_fecha.equals(fechaLimite);
+        return p_fecha.after(fechaLimite);
     }
     
+     /**
+     * Devuelve una representación en texto del préstamo,
+     * incluyendo fechas, libro y socio.
+     *
+     * @return Cadena descriptiva del préstamo.
+     */
     public String toString(){
         Calendar retiro = (Calendar) this.getFechaRetiro().clone();
         String retiroFormateado = String.format("%tF", retiro);

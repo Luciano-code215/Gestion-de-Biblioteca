@@ -1,9 +1,12 @@
 
 /**
- * Write a description of class Socio here.
+ * Clase abstracta que representa a un socio de la biblioteca.
+ * Un socio posee datos personales y un conjunto de préstamos asociados.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Las subclases definen el tipo específico de socio (por ejemplo, Estudiante o Docente).
+ * 
+ * @author Luciano Pedotti
+ * @version 21/12/2025
  */
 
 import java.util.*;
@@ -16,6 +19,14 @@ public abstract class Socio
     private int diasPrestamo;
     private ArrayList<Prestamo> prestamos;
     
+    /**
+     * Constructor que inicializa el socio con una lista de préstamos existente.
+     *
+     * @param p_dniSocio DNI del socio.
+     * @param p_nombre Nombre del socio.
+     * @param p_diasPrestamo Cantidad de días permitidos para un préstamo.
+     * @param p_prestamos Lista de préstamos asociados al socio.
+     */
     public Socio (int p_dniSocio, String p_nombre, int p_diasPrestamo, ArrayList<Prestamo> p_prestamos){
         this.setDni(p_dniSocio);
         this.setNombre(p_nombre);
@@ -23,6 +34,13 @@ public abstract class Socio
         this.setPrestamos(p_prestamos);
     }
     
+    /**
+     * Constructor que inicializa el socio sin préstamos.
+     *
+     * @param p_dniSocio DNI del socio.
+     * @param p_nombre Nombre del socio.
+     * @param p_diasPrestamo Cantidad de días permitidos para un préstamo.
+     */
     public Socio (int p_dniSocio, String p_nombre, int p_diasPrestamo){
         this.setDni(p_dniSocio);
         this.setNombre(p_nombre);
@@ -70,6 +88,12 @@ public abstract class Socio
         return this.getPrestamos().remove(p_prestamo);
     }
     
+    /**
+     * Calcula la cantidad de libros que el socio tiene actualmente prestados.
+     * Se consideran solo los préstamos activos (sin fecha de devolución).
+     *
+     * @return Cantidad de libros prestados.
+     */
     public int cantLibrosPrestados(){
         int contador = 0;
         
@@ -82,17 +106,27 @@ public abstract class Socio
         return contador;
     }
     
+    /**
+     * Devuelve una descripción textual del socio.
+     *
+     * @return Representación en texto del socio.
+     */
     public String toString(){
         return "DNI: " + this.getDni() + "||" + this.getNombre() + "(" + this.soyDeLaClase() + 
           ") ||" + "Libros Prestados: " + this.cantLibrosPrestados(); 
     }
     
     /**
-     * puede pedir solo si la fecha devo es nula, osea esta activo el prestamo, y no esta vencido
+     * Indica si el socio puede solicitar un nuevo préstamo.
+     * Un socio puede pedir libros únicamente si no posee préstamos vencidos activos.
+     *
+     * @return {@code true} si puede solicitar un préstamo, {@code false} en caso contrario.
      */
     public boolean puedePedir(){
+        Calendar hoy = new GregorianCalendar();
+        
         for (Prestamo unPrestamo : this.getPrestamos()){
-            if (unPrestamo.getFechaDevolucion() == null && unPrestamo.vencido(new GregorianCalendar())){
+            if (unPrestamo.getFechaDevolucion() == null && unPrestamo.vencido(hoy)){
                 return false;
             }
         }
@@ -100,5 +134,11 @@ public abstract class Socio
         return true;
     }
     
+    /**
+     * Devuelve el tipo concreto de socio.
+     * Método que debe ser implementado por las subclases.
+     *
+     * @return Nombre del tipo de socio.
+     */
     public abstract String soyDeLaClase();
 }

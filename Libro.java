@@ -1,9 +1,11 @@
 
 /**
- * Write a description of class Libro here.
+ * Representa un libro dentro de la biblioteca.
+ * Un libro posee información bibliográfica y mantiene
+ * el historial de préstamos realizados sobre él.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Luciano Pedotti 
+ * @version 21/12/2025
  */
 
 import java.util.*;
@@ -17,6 +19,15 @@ public class Libro
     private int cantidad;
     private ArrayList<Prestamo> prestamos;
     
+    /**
+     * Constructor que inicializa un libro con una lista de préstamos existente.
+     *
+     * @param p_titulo Título del libro.
+     * @param p_edicion Edición del libro.
+     * @param p_editorial Editorial del libro.
+     * @param p_anio Año de publicación.
+     * @param p_prestamos Lista de préstamos del libro.
+     */
     public Libro(String p_titulo, int p_edicion, String p_editorial, int p_anio, ArrayList<Prestamo> p_prestamos){
         this.setTitulo(p_titulo);
         this.setEdicion(p_edicion);
@@ -25,6 +36,14 @@ public class Libro
         this.setPrestamos(p_prestamos);
     }
     
+     /**
+     * Constructor que inicializa un libro sin préstamos.
+     *
+     * @param p_titulo Título del libro.
+     * @param p_edicion Edición del libro.
+     * @param p_editorial Editorial del libro.
+     * @param p_anio Año de publicación.
+     */
     public Libro(String p_titulo, int p_edicion, String p_editorial, int p_anio){
         this.setTitulo(p_titulo);
         this.setEdicion(p_edicion);
@@ -81,6 +100,13 @@ public class Libro
         return this.getPrestamos().remove(p_prestamo);
     }
     
+    
+     /**
+     * Indica si el libro se encuentra actualmente prestado.
+     *
+     * @return {@code true} si existe un préstamo activo,
+     *         {@code false} en caso contrario.
+     */
     public boolean prestado (){
         for (Prestamo unPrestamo : this.getPrestamos()){
             if (unPrestamo.getFechaDevolucion() == null){
@@ -91,6 +117,11 @@ public class Libro
         return false;
     }
     
+     /**
+     * Devuelve el último préstamo realizado sobre el libro.
+     *
+     * @return Último préstamo o {@code null} si no existen préstamos.
+     */
     public Prestamo ultimoPrestamo(){
         if(!this.getPrestamos().isEmpty()){
             return this.getPrestamos().get(this.getPrestamos().size() - 1);
@@ -99,11 +130,23 @@ public class Libro
         return null;
     }
     
+     /**
+     * Compara dos libros por sus atributos bibliográficos.
+     *
+     * @param p_libro Libro a comparar.
+     * @return {@code true} si ambos libros representan la misma edición,
+     *         {@code false} en caso contrario.
+     */
     public boolean esIgual(Libro p_libro){
         return (this.getTitulo() == p_libro.getTitulo() && this.getEdicion() == p_libro.getEdicion() && 
           this.getEditorial() == p_libro.getEditorial() && this.getAnio() == p_libro.getAnio());
     }
     
+    /**
+     * Devuelve una representación textual del libro.
+     *
+     * @return Título del libro.
+     */
     public String toString(){
         return "Titulo: " + this.getTitulo();
     }
