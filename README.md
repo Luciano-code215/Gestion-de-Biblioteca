@@ -26,4 +26,6 @@ Este sistema fue creado con fines educativos.
 
 4. Ejecuta la clase Main.java.
 
+##Dentro del repositorio se incluye un archivo `biblioteca1.db` el cual tiene precargado algunos socios y libros para hacer pruebas, de ser necesario limpiar la base de datos solo borrar dicho archivo y el programa por si solo lo creará nuevamente.
+
 ##Autor : Luciano Pedotti
